@@ -127,3 +127,23 @@ button:hover {
   background-color: #c17e3e;
   color: white;
 }
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+}
+
+.sand-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(193, 126, 62, 0.2);
+  border-top: 5px solid #eebb99; /* Spice Color */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
