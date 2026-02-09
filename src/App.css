@@ -1,0 +1,129 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+  background-color: #2b1d0e; /* Deep Sand */
+  color: #eebb99; /* Spice */
+  min-height: 100vh;
+}
+
+.card {
+  background: #463015;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 0 20px #c17e3e;
+}
+
+input {
+  padding: 10px;
+  margin-right: 10px;
+  background: #1a1108;
+  border: 1px solid #c17e3e;
+  color: #eebb99;
+}
+
+button {
+  background-color: #c17e3e;
+  color: #1a1108;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #eebb99;
+}
+
+.status {
+  margin-top: 20px;
+  font-weight: bold;
+}
+
+.result-box {
+  margin-top: 20px;
+  border: 1px dashed #c17e3e;
+  padding: 10px;
+  text-align: left;
+  background: rgba(0,0,0,0.2);
+}
+/* --- THE SWARM STYLES --- */
+.swarm-container {
+  margin-top: 30px;
+  border-top: 2px solid #c17e3e;
+  padding-top: 20px;
+}
+
+.scroll-box {
+  max-height: 300px;
+  overflow-y: auto; /* Allow scrolling if too many worms */
+  background: rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.trout-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #2b1d0e;
+  border: 1px solid #5a3e1b;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  transition: transform 0.2s;
+}
+
+.trout-card:hover {
+  transform: scale(1.02);
+  border-color: #eebb99;
+}
+
+.icon {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.info {
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+.info small {
+  color: #886644;
+  font-size: 0.7rem;
+}
+
+.alignment {
+  font-family: monospace;
+  color: #c17e3e;
+  font-size: 0.8rem;
+}
+.recycle-btn {
+  background-color: #5a1b1b; /* Blood/Water color */
+  color: #ffcccc;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  margin-left: 15px;
+  border: 1px solid #ff4444;
+}
+
+.recycle-btn:hover {
+  background-color: #ff4444;
+  color: black;
+}
+.rename-btn {
+  background-color: #8a6a4b; 
+  color: #1a1108;
+  font-size: 0.8rem;
+  padding: 5px 10px;
+  border: 1px solid #c17e3e;
+}
+
+.rename-btn:hover {
+  background-color: #c17e3e;
+  color: white;
+}
