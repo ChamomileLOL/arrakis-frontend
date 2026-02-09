@@ -1,44 +1,73 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import axios from 'axios'
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts'
 import './App.css'
 
-// The Sacred Frequency (Your Render URL)
 const BACKEND_URL = "https://arrakis-backend.onrender.com";
+const LIMIT = 5;
 
 function App() {
+  // --- STATE: SIETCH CORE ---
   const [harvesterName, setHarvesterName] = useState('')
   const [status, setStatus] = useState('')
   const [swarm, setSwarm] = useState([]) 
-  const [isLoading, setIsLoading] = useState(false) // NEW: The Sandstorm State
+  const [isLoading, setIsLoading] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isDarkMode, setIsDarkMode] = useState(true)
 
-  // FETCH THE SWARM
-  const fetchSwarm = async () => {
-    setIsLoading(true) // Start the storm
+  // --- STATE: ARCHIVE RECORDS ---
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalWorms, setTotalWorms] = useState(0)
+
+  // --- LOGIC: DATA PRESCIENCE (The Chart) ---
+  const chartData = useMemo(() => {
+    const counts = swarm.reduce((acc, trout) => {
+      const name = trout.harvester_name;
+      acc[name] = (acc[name] || 0) + 1;
+      return acc;
+    }, {});
+    
+    return Object.entries(counts)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+  }, [swarm]);
+
+  // --- LOGIC: FETCHING ---
+  const fetchSwarm = useCallback(async () => {
+    setIsLoading(true)
     try {
-      const response = await axios.get(`${BACKEND_URL}/sietch/swarm`)
-      setSwarm(response.data.data)
+      const { data } = await axios.get(`${BACKEND_URL}/sietch/swarm`, {
+        params: { page, limit: LIMIT }
+      })
+      setSwarm(data.data)
+      setTotalPages(data.totalPages)
+      setTotalWorms(data.totalWorms)
     } catch (error) {
-      console.error("Could not see the swarm:", error)
+      console.error("Prescience failed:", error)
+      setStatus("ERROR: The Sietch is unreachable.")
     } finally {
-      setIsLoading(false) // The storm clears
+      setIsLoading(false)
     }
-  }
+  }, [page])
 
   useEffect(() => {
     fetchSwarm()
-  }, [])
+  }, [fetchSwarm])
 
+  const filteredSwarm = swarm.filter(trout =>
+    trout.harvester_name.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  // --- RITUALS: CRUD ---
   const breedMaker = async () => {
-    if (!harvesterName) return alert("Enter a Harvester name first!")
-    
+    if (!harvesterName.trim()) return setStatus("A name is required for the ritual.")
     setStatus('Summoning...')
     setIsLoading(true)
-    
     try {
       const now = Date.now()
-      const sacredNumber = 10000000000000n 
-      const timeReference = BigInt(now)
-      const alignment = (sacredNumber + timeReference).toString()
+      const alignment = (10000000000000n + BigInt(now)).toString()
 
       await axios.post(`${BACKEND_URL}/sietch/breed`, {
         harvester_name: harvesterName,
@@ -46,108 +75,128 @@ function App() {
         molecular_alignment: alignment
       })
 
-      setStatus('BLESS THE MAKER. Space was folded.')
-      await fetchSwarm() // Refresh list
-      setHarvesterName('') 
-
+      setStatus('BLESS THE MAKER.')
+      setHarvesterName('')
+      page === 1 ? fetchSwarm() : setPage(1) 
     } catch (error) {
-      console.error(error)
-      setStatus('FAILURE: The Desert Rejects You.')
+      setStatus(`FAILURE: ${error.response?.data?.error || "The Desert Rejects You."}`)
     } finally {
       setIsLoading(false)
     }
   }
 
-  // RECYCLE WATER (Delete)
   const recycleWater = async (id) => {
-    if (!confirm("This will return the water to the tribe. Proceed?")) return;
-    
+    if (!window.confirm("Return this water to the tribe?")) return
     setIsLoading(true)
     try {
-      await axios.delete(`${BACKEND_URL}/sietch/recycle/${id}`);
-      await fetchSwarm();
+      await axios.delete(`${BACKEND_URL}/sietch/recycle/${id}`)
+      fetchSwarm()
     } catch (error) {
-      alert("Could not recycle water.");
+      setStatus("FAILURE: Water discipline failed.")
     } finally {
       setIsLoading(false)
     }
-  };
+  }
 
-  // RENAME WORM (Update)
   const renameWorm = async (id, currentName) => {
-    const newName = prompt(`Rename ${currentName} to:`, currentName);
-    if (!newName || newName === currentName) return;
-
+    const newName = window.prompt(`Rename ${currentName}:`, currentName)
+    if (!newName || newName === currentName) return
     setIsLoading(true)
     try {
-      await axios.put(`${BACKEND_URL}/sietch/rename/${id}`, { 
-        new_name: newName 
-      });
-      await fetchSwarm(); 
+      await axios.put(`${BACKEND_URL}/sietch/rename/${id}`, { new_name: newName })
+      fetchSwarm()
     } catch (error) {
-      alert("The name was rejected.");
+      setStatus("FAILURE: Ritual interrupted.")
     } finally {
       setIsLoading(false)
     }
-  };
+  }
 
   return (
-    <div className="card">
-      <h1>Arrakis Breeding Grounds</h1>
-      
-      <div className="input-group">
-        <input 
-          type="text" 
-          placeholder="Enter Harvester Name"
-          value={harvesterName}
-          onChange={(e) => setHarvesterName(e.target.value)}
-        />
-        <button onClick={breedMaker} disabled={isLoading}>
-          {isLoading ? "Consulting..." : "Attempt to Breed"}
-        </button>
-      </div>
+    <div className={`app-wrapper ${isDarkMode ? 'theme-dark' : 'theme-light'}`}>
+      <button className="theme-toggle" onClick={() => setIsDarkMode(!isDarkMode)}>
+        {isDarkMode ? "☀️ High Sun" : "🌙 Sietch Night"}
+      </button>
 
-      <p className="status">{status}</p>
-
-      <div className="swarm-container">
-        <h2>The Swarm ({swarm.length})</h2>
-        
-        {/* CONDITIONAL RENDERING: Spinner or List */}
-        {isLoading ? (
-          <div className="loader-container">
-            <div className="sand-spinner"></div>
-            <p>Scanning the Deep Desert...</p>
+      <main className="card">
+        <header>
+          <h1>Arrakis Breeding Grounds</h1>
+          <div className="input-group">
+            <input 
+              type="text" 
+              placeholder="Harvester Name..."
+              value={harvesterName}
+              onChange={(e) => setHarvesterName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && breedMaker()}
+            />
+            <button onClick={breedMaker} disabled={isLoading}>Breed Maker</button>
           </div>
-        ) : (
-          <div className="scroll-box">
-            {swarm.map((trout) => (
-              <div key={trout._id} className="trout-card">
-                <span className="icon">🪱</span>
-                <div className="info">
-                  <strong>{trout.harvester_name}</strong>
-                  <small>ID: {trout._id}</small>
-                </div>
-                
-                <div className="actions">
-                  <button 
-                    className="rename-btn" 
-                    onClick={() => renameWorm(trout._id, trout.harvester_name)}
-                  >
-                    Rename
-                  </button>
+          <p className={`status ${status.includes('FAILURE') ? 'error' : 'success'}`}>{status}</p>
+        </header>
 
-                  <button 
-                    className="recycle-btn" 
-                    onClick={() => recycleWater(trout._id)}
-                  >
-                    Recycle
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* ANALYTICS HUD */}
+        {!isLoading && chartData.length > 0 && (
+          <section className="chart-section">
+            <h3>Sector Productivity</h3>
+            <div style={{ width: '100%', height: 150 }}>
+              <ResponsiveContainer>
+                <BarChart data={chartData} layout="vertical">
+                  <XAxis type="number" hide />
+                  <YAxis dataKey="name" type="category" width={80} tick={{fontSize: 12}} stroke="currentColor" />
+                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{borderRadius: '8px', border: 'none'}} />
+                  <Bar dataKey="count" fill="var(--accent)" radius={[0, 5, 5, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </section>
         )}
-      </div>
+
+        <section className="swarm-container">
+          <div className="swarm-header">
+            <div>
+              <h2>The Swarm ({totalWorms})</h2>
+              <small>Sector {page} of {totalPages}</small>
+            </div>
+            <input 
+              type="text" 
+              className="search-bar" 
+              placeholder="Search sands..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          
+          {isLoading ? (
+            <div className="loader-container">
+              <div className="sand-spinner"></div>
+              <p>Scanning seismic signatures...</p>
+            </div>
+          ) : (
+            <>
+              <div className="scroll-box">
+                {filteredSwarm.map((trout) => (
+                  <article key={trout._id} className="trout-card">
+                    <div className="info">
+                      <strong>{trout.harvester_name}</strong>
+                      <code>ID: {trout._id.slice(-6)}</code>
+                    </div>
+                    <div className="actions">
+                      <button onClick={() => renameWorm(trout._id, trout.harvester_name)}>Rename</button>
+                      <button className="recycle-btn" onClick={() => recycleWater(trout._id)}>Recycle</button>
+                    </div>
+                  </article>
+                ))}
+              </div>
+
+              <nav className="pagination">
+                <button disabled={page === 1} onClick={() => setPage(p => p - 1)}>‹ Prev</button>
+                <span>{page} / {totalPages}</span>
+                <button disabled={page === totalPages} onClick={() => setPage(p => p + 1)}>Next ›</button>
+              </nav>
+            </>
+          )}
+        </section>
+      </main>
     </div>
   )
 }

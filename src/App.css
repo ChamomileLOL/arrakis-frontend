@@ -1,149 +1,197 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-  font-family: 'Courier New', monospace;
-  background-color: #2b1d0e; /* Deep Sand */
-  color: #eebb99; /* Spice */
+/* --- THEME DEFINITIONS --- */
+:root {
+  /* Common Values */
+  --transition-speed: 0.4s;
+  --font-main: 'Courier New', monospace;
+}
+
+.theme-dark {
+  --bg-color: #1a1108;       /* Deep Night */
+  --card-bg: #2b1d0e;        /* Sietch Stone */
+  --text-main: #eebb99;      /* Spice Glow */
+  --text-dim: #886644;       /* Dust */
+  --accent: #c17e3e;         /* Burnished Gold */
+  --input-bg: #120b05;
+  --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+  --chart-overlay: rgba(0, 0, 0, 0.3);
+}
+
+.theme-light {
+  --bg-color: #f4d03f;       /* Blinding Sun */
+  --card-bg: #fff9e6;        /* Sandstone */
+  --text-main: #4a3701;      /* Dried Earth */
+  --text-dim: #8a6a4b;       /* Wet Sand */
+  --accent: #8a6a4b;         /* Shai-Hulud Hide */
+  --input-bg: #ffffff;
+  --card-shadow: 0 10px 30px rgba(138, 106, 75, 0.3);
+  --chart-overlay: rgba(255, 255, 255, 0.4);
+}
+
+/* --- CORE LAYOUT --- */
+.app-wrapper {
   min-height: 100vh;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  font-family: var(--font-main);
+  transition: background-color var(--transition-speed), color var(--transition-speed);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
 }
 
 .card {
-  background: #463015;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 0 20px #c17e3e;
+  background: var(--card-bg);
+  width: 100%;
+  max-width: 600px;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--accent);
+  transition: background var(--transition-speed);
+}
+
+h1 {
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  margin-bottom: 2rem;
+  font-size: 1.8rem;
+}
+
+/* --- UI COMPONENTS --- */
+.input-group {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
 }
 
 input {
-  padding: 10px;
-  margin-right: 10px;
-  background: #1a1108;
-  border: 1px solid #c17e3e;
-  color: #eebb99;
+  flex: 1;
+  padding: 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--accent);
+  color: var(--text-main);
+  border-radius: 4px;
+  outline: none;
 }
 
 button {
-  background-color: #c17e3e;
-  color: #1a1108;
+  background-color: var(--accent);
+  color: #fff;
   border: none;
   padding: 10px 20px;
   cursor: pointer;
   font-weight: bold;
+  text-transform: uppercase;
+  transition: opacity 0.2s, transform 0.1s;
 }
 
-button:hover {
-  background-color: #eebb99;
+button:hover:not(:disabled) {
+  filter: brightness(1.2);
+  transform: translateY(-2px);
 }
 
-.status {
-  margin-top: 20px;
-  font-weight: bold;
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.result-box {
-  margin-top: 20px;
-  border: 1px dashed #c17e3e;
-  padding: 10px;
-  text-align: left;
-  background: rgba(0,0,0,0.2);
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  border-radius: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
-/* --- THE SWARM STYLES --- */
+
+/* --- THE SWARM & LISTS --- */
 .swarm-container {
-  margin-top: 30px;
-  border-top: 2px solid #c17e3e;
-  padding-top: 20px;
+  margin-top: 2rem;
+  border-top: 1px solid var(--accent);
+  padding-top: 1.5rem;
+}
+
+.swarm-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+  text-align: left;
 }
 
 .scroll-box {
-  max-height: 300px;
-  overflow-y: auto; /* Allow scrolling if too many worms */
-  background: rgba(0, 0, 0, 0.3);
-  padding: 10px;
+  max-height: 350px;
+  overflow-y: auto;
+  background: var(--chart-overlay);
+  padding: 15px;
   border-radius: 8px;
 }
 
 .trout-card {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  background: #2b1d0e;
-  border: 1px solid #5a3e1b;
+  align-items: center;
+  background: var(--card-bg);
+  border: 1px solid var(--accent);
+  padding: 12px;
   margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 6px;
-  transition: transform 0.2s;
+  border-radius: 8px;
 }
 
-.trout-card:hover {
-  transform: scale(1.02);
-  border-color: #eebb99;
+.info { text-align: left; }
+.info strong { display: block; color: var(--text-main); }
+.info code { color: var(--text-dim); font-size: 0.75rem; }
+
+/* --- ANALYTICS & PAGINATION --- */
+.chart-section {
+  background: var(--chart-overlay);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.icon {
-  font-size: 1.5rem;
-  margin-right: 10px;
-}
-
-.info {
-  text-align: left;
+.pagination {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 }
 
-.info small {
-  color: #886644;
+.pagination span {
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+/* --- BUTTON VARIANTS --- */
+.recycle-btn {
+  background: #5a1b1b;
+  border: 1px solid #ff4444;
   font-size: 0.7rem;
 }
 
-.alignment {
-  font-family: monospace;
-  color: #c17e3e;
-  font-size: 0.8rem;
-}
-.recycle-btn {
-  background-color: #5a1b1b; /* Blood/Water color */
-  color: #ffcccc;
-  font-size: 0.8rem;
-  padding: 5px 10px;
-  margin-left: 15px;
-  border: 1px solid #ff4444;
-}
+.recycle-btn:hover { background: #ff4444 !important; }
 
-.recycle-btn:hover {
-  background-color: #ff4444;
-  color: black;
-}
-.rename-btn {
-  background-color: #8a6a4b; 
-  color: #1a1108;
-  font-size: 0.8rem;
-  padding: 5px 10px;
-  border: 1px solid #c17e3e;
-}
-
-.rename-btn:hover {
-  background-color: #c17e3e;
-  color: white;
-}
-.loader-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 40px;
-}
-
+/* --- SPINNER --- */
+.loader-container { padding: 3rem; }
 .sand-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(193, 126, 62, 0.2);
-  border-top: 5px solid #eebb99; /* Spice Color */
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--text-dim);
+  border-top: 4px solid var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
+
+.status {
+  font-size: 0.85rem;
+  height: 20px;
+}
+.error { color: #ff6b6b; }
+.success { color: #51cf66; }
